@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>main.c</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<style type="text/css">
+<!--
+body {color: #000000; background-color: #ffffff; font-family: Monospaced}
+pre {color: #000000; background-color: #ffffff; font-family: Monospaced}
+table {color: #000000; background-color: #e9e8e2; font-family: Monospaced}
+.comment {color: #969696}
+.line-number {background-color: #e9e8e2}
+.ST0 {color: #ce7b00; font-family: Monospaced; font-weight: bold}
+.preprocessor-system-include-literal {color: #ce7b00}
+.keyword-directive {color: #0000e6}
+.preprocessor-keyword-directive {color: #009b00}
+-->
+</style>
+</head>
+<body>
+<pre>
+<span class="line-number">  1</span> <span class="comment">/**</span><span class="comment">************************************************************</span>
+<span class="line-number">  2</span> <span class="comment"> * </span><span class="comment">Paul</span> <span class="comment">Senatillaka</span>             <span class="comment">Date</span><span class="comment">: 2/22/10</span>                                                                                                           <span class="comment">*</span>
+<span class="line-number">  3</span> <span class="comment"> * 91</span><span class="comment">.</span><span class="comment">350: </span><span class="comment">Excursions</span> <span class="comment">in</span> <span class="comment">CS</span>                                                                                                                                             <span class="comment">*</span>
+<span class="line-number">  4</span> <span class="comment"> * </span><span class="comment">Assignment</span><span class="comment">: </span><span class="comment">Strassen</span> <span class="comment">Matrix</span> <span class="comment">Multiply</span> <span class="comment">Algorithm</span>                                                       <span class="comment">*</span>
+<span class="line-number">  5</span> <span class="comment"> * </span><span class="comment">Multiply</span> <span class="comment">two</span> <span class="comment">matrixes</span> <span class="comment">O</span><span class="comment">(</span><span class="comment">n</span><span class="comment">^2</span><span class="comment">.</span><span class="comment">71)</span>      <span class="comment">- 7 </span><span class="comment">Multiplys</span><span class="comment">, 18 </span><span class="comment">Additions</span>     <span class="comment">*</span>
+<span class="line-number">  6</span> <span class="comment"> **************************************************************</span><span class="comment">*/</span>
+<span class="line-number">  7</span> <span class="preprocessor-keyword-directive">#</span><span class="preprocessor-keyword-directive">include</span> <span class="preprocessor-system-include-literal">&lt;stdio.h&gt;</span>
+<span class="line-number">  8</span> <span class="preprocessor-keyword-directive">#</span><span class="preprocessor-keyword-directive">include</span> <span class="preprocessor-system-include-literal">&lt;stdlib.h&gt;</span>
+<span class="line-number">  9</span> 
+<span class="line-number"> 10</span> <span class="keyword-directive">typedef</span> <span class="keyword-directive">int</span> bool;
+<span class="line-number"> 11</span> 
+<span class="line-number"> 12</span> <span class="comment">//Function Declerations</span>
+<span class="line-number"> 13</span> <span class="keyword-directive">void</span> printMatrix(<span class="keyword-directive">int</span> *matrix[], <span class="keyword-directive">int</span> size);
+<span class="line-number"> 14</span> <span class="keyword-directive">in</span><span class="keyword-directive">t</span> **strassenMultiply(<span class="keyword-directive">int</span> **matrixA, <span class="keyword-directive">int</span> **matrixB, <span class="keyword-directive">int</span> size);
+<span class="line-number"> 15</span> <span class="keyword-directive">int</span>** matrixAddSub(<span class="keyword-directive">int</span> **matrixA, <span class="keyword-directive">int</span> **matrixB, <span class="keyword-directive">int</span> size, bool Add);
+<span class="line-number"> 16</span> 
+<span class="line-number"> 17</span> <span class="keyword-directive">int</span> main(<span class="keyword-directive">int</span> argc, <span class="keyword-directive">char</span> *argv[]) {
+<span class="line-number"> 18</span>     <span class="keyword-directive">int</span> **matrixA; <span class="comment">// </span><span class="comment">Matrix to multiply</span>
+<span class="line-number"> 19</span>     <span class="keyword-directive">int</span> **matrixB; <span class="comment">// Matrix to multiply</span>
+<span class="line-number"> 20</span>     <span class="keyword-directive">int</span> **matrixC; <span class="comment">// Result matrix</span>
+<span class="line-number"> 21</span> 
+<span class="line-number"> 22</span>     <span class="keyword-directive">static</span> <span class="keyword-directive">const</span> SIZE = 8; <span class="comment">// Matrix size;</span>
+<span class="line-number"> 23</span>     <span class="keyword-directive">int</span> i, j; <span class="comment">// Matrix indices;</span>
+<span class="line-number"> 24</span> 
+<span class="line-number"> 25</span>     <span class="comment">// Create orignal matrices to multiply</span>
+<span class="line-number"> 26</span>     <span class="comment">// Dynamically allocate space for a two dimensional array of ints with error che</span><span class="comment">cking</span>
+<span class="line-number"> 27</span>     matrixA = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * SIZE);
+<span class="line-number"> 28</span>     matrixB = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * SIZE);
+<span class="line-number"> 29</span>     matrixC = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * SIZE);
+<span class="line-number"> 30</span> 
+<span class="line-number"> 31</span>     <span class="keyword-directive">for</span> (i = 0; i &lt; SIZE; i++) {
+<span class="line-number"> 32</span>         <span class="keyword-directive">if</span> (matrixA == NULL || (matrixA[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * SIZE)) == NULL) {
+<span class="line-number"> 33</span>             printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="preprocessor-system-include-literal">Memory allocation for matrix failed. Aborting..</span><span class="preprocessor-system-include-literal">&quot;</span>);
+<span class="line-number"> 34</span>             <span class="keyword-directive">return</span>;
+<span class="line-number"> 35</span>         }
+<span class="line-number"> 36</span>         <span class="keyword-directive">if</span> (matrixB == NULL || (matrixB[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * SIZE)) == NULL) {
+<span class="line-number"> 37</span>             printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="preprocessor-system-include-literal">Memory allocation for matrix failed. Aborting..</span><span class="preprocessor-system-include-literal">&quot;</span>);
+<span class="line-number"> 38</span>             <span class="keyword-directive">return</span>;
+<span class="line-number"> 39</span>         }
+<span class="line-number"> 40</span>         <span class="keyword-directive">if</span> (matrixC == NULL || (matrixC[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * SIZE)) == NULL) {
+<span class="line-number"> 41</span>             printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="preprocessor-system-include-literal">Memory allocation for matrix failed. Aborting..</span><span class="preprocessor-system-include-literal">&quot;</span>);
+<span class="line-number"> 42</span>             <span class="keyword-directive">return</span>;
+<span class="line-number"> 43</span>         }
+<span class="line-number"> 44</span>     }
+<span class="line-number"> 45</span> 
+<span class="line-number"> 46</span>     <span class="comment">//Fill matrix with test values</span>
+<span class="line-number"> 47</span>     <span class="keyword-directive">for</span> (i = 0; i &lt; SIZE; i++) {
+<span class="line-number"> 48</span>         <span class="keyword-directive">for</span> (j = 0; j &lt; SIZE; j++) {
+<span class="line-number"> 49</span>             matrixA[i][j] = 1;
+<span class="line-number"> 50</span>             matrixB[i][j] = 1;
+<span class="line-number"> 51</span>         }
+<span class="line-number"> 52</span>     }
+<span class="line-number"> 53</span> 
+<span class="line-number"> 54</span>     matrixC = strassenMultiply(matrixA, matrixB, SIZE);
+<span class="line-number"> 55</span>     printMatrix(matrixC, SIZE);
+<span class="line-number"> 56</span> 
+<span class="line-number"> 57</span>     <span class="keyword-directive">return</span> 0;
+<span class="line-number"> 58</span> }
+<span class="line-number"> 59</span> 
+<span class="line-number"> 60</span> <span class="keyword-directive">int</span> ** strassenMultiply(<span class="keyword-directive">int</span> **matrixA, <span class="keyword-directive">int</span> **matrixB, <span class="keyword-directive">int</span> size) {
+<span class="line-number"> 61</span> 
+<span class="line-number"> 62</span>     <span class="keyword-directive">int</span> **matrixC; <span class="comment">// Result matrix</span>
+<span class="line-number"> 63</span>     <span class="keyword-directive">int</span> i; <span class="comment">// Counter</span>
+<span class="line-number"> 64</span>     bool add = 1;
+<span class="line-number"> 65</span>     bool sub = 0;
+<span class="line-number"> 66</span> 
+<span class="line-number"> 67</span>     <span class="comment">// Dynamically allocate space for a two dimensional array of ints</span><span class="comment"> with error checking</span>
+<span class="line-number"> 68</span>     matrixC = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number"> 69</span> 
+<span class="line-number"> 70</span>     <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number"> 71</span>         <span class="keyword-directive">if</span> (matrixC == NULL || (matrixC[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size)) == NULL) {
+<span class="line-number"> 72</span>             printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="preprocessor-system-include-literal">Memory allocation for matrix failed. Aborting..</span><span class="preprocessor-system-include-literal">&quot;</span>);
+<span class="line-number"> 73</span>             <span class="keyword-directive">return</span>;
+<span class="line-number"> 74</span>         }
+<span class="line-number"> 75</span>     }
+<span class="line-number"> 76</span> 
+<span class="line-number"> 77</span>     <span class="comment">// Bottom of rec</span><span class="comment">ursion</span>
+<span class="line-number"> 78</span>     <span class="keyword-directive">if</span> (size == 2) {
+<span class="line-number"> 79</span> 
+<span class="line-number"> 80</span>         <span class="keyword-directive">int</span> m[7];
+<span class="line-number"> 81</span>         m[0] = (matrixA[0][0] + matrixA[1][1]) * (matrixB[0][0] + matrixB[1][1]);
+<span class="line-number"> 82</span>         m[1] = (matrixA[1][0] + matrixA[1][1]) * matrixB[0][0];
+<span class="line-number"> 83</span>         m[2] = (matrixB[0][1] - matrixB[1][1]) * matrixA[0][0];
+<span class="line-number"> 84</span>         m[3] = (matrixB[1][0] - matrixB[0][0]) * matrixA[1][1];
+<span class="line-number"> 85</span>         m[4] = (matrixA[0][0] + matrixA[0][1]) * matrixB[1][1];
+<span class="line-number"> 86</span>         m[5] = (matrixA[1][0] - matrixA[0][0]) * (matrixB[0][0] + matrixB[0][1]);
+<span class="line-number"> 87</span>         m[6] = (matrixA[0][1] - matrixA[1][1]) * (matrixB[1][0] + matrixB[1][1]);
+<span class="line-number"> 88</span> 
+<span class="line-number"> 89</span>         matrixC[0][0] = m[0] + m[3] - m[4] + m[6];
+<span class="line-number"> 90</span>         matrixC[0][1] = m[2] + m[4];
+<span class="line-number"> 91</span>         matrixC[1][0] = m[1] + m[3];
+<span class="line-number"> 92</span>         matrixC[1][1] = m[0] - m[1] + m[2] + m[5];
+<span class="line-number"> 93</span>     }
+<span class="line-number"> 94</span>     <span class="comment">// Divide and conquer</span>
+<span class="line-number"> 95</span>     <span class="keyword-directive">else</span> {
+<span class="line-number"> 96</span> 
+<span class="line-number"> 97</span>         <span class="comment">// Temp matrix to store operations</span>
+<span class="line-number"> 98</span>         <span class="keyword-directive">int</span> **matrixA11;
+<span class="line-number"> 99</span>         <span class="keyword-directive">int</span> **matrixA12;
+<span class="line-number">100</span>         <span class="keyword-directive">int</span> **matrixA21;
+<span class="line-number">101</span>         <span class="keyword-directive">int</span> **matrixA22;
+<span class="line-number">102</span> 
+<span class="line-number">103</span>         <span class="keyword-directive">int</span> **matrixB11;
+<span class="line-number">104</span>         <span class="keyword-directive">int</span> **matrixB12;
+<span class="line-number">105</span>         <span class="keyword-directive">int</span> **matrixB21;
+<span class="line-number">106</span>         <span class="keyword-directive">int</span> **matrixB22;
+<span class="line-number">107</span> 
+<span class="line-number">108</span>         size = size / 2; <span class="comment">// Reduce size becuase we&#39;re splitting into 4 quads.</span>
+<span class="line-number">109</span> 
+<span class="line-number">110</span>         <span class="keyword-directive">int</span> i, j; <span class="comment">// Matrix indices</span>
+<span class="line-number">111</span> 
+<span class="line-number">112</span>         <span class="comment">// </span><span class="comment">Dynamically allocate space for a two dimensional array of ints with error checking</span>
+<span class="line-number">113</span>         matrixA11 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">114</span>         matrixA12 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">115</span>         matrixA21 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">116</span>         matrixA22 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">117</span> 
+<span class="line-number">118</span>         matrixB11 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">119</span>         matrixB12 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">120</span>         matrixB21 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">121</span>         matrixB22 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">122</span> 
+<span class="line-number">123</span>         <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">124</span>             matrixA11[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">125</span>             matrixA12[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">126</span>             matrixA21[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">127</span>             matrixA22[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">128</span> 
+<span class="line-number">129</span>             matrixB11[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">130</span>             matrixB12[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">131</span>             matrixB21[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">132</span>             matrixB22[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">133</span>         }
+<span class="line-number">134</span> 
+<span class="line-number">135</span>         <span class="comment">// Copy orign matrix into 4 sub-divided matrices</span>
+<span class="line-number">136</span>         <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">137</span>             <span class="keyword-directive">for</span> (j = 0; j &lt; size; j++) {
+<span class="line-number">138</span>                 <span class="comment">//We use the new size(orig size/2) as an offset here</span>
+<span class="line-number">139</span>                 matrixA11[i][j] = matrixA[ i ][ j ];
+<span class="line-number">140</span>                 matrixA12[i][j] = matrixA[ i ][ j + size ];
+<span class="line-number">141</span>                 matrixA21[i][j] = matrixA[ i + size ][ j ];
+<span class="line-number">142</span>                 matrixA22[i][j] = matrixA[ i + size ][ j + size ];
+<span class="line-number">143</span> 
+<span class="line-number">144</span>                 matrixB11[i][j] = matrixB[ i ][ j ];
+<span class="line-number">145</span>                 matrixB12[i][j] = matrixB[ i ][ j + size ];
+<span class="line-number">146</span>                 matrixB21[i][j] = matrixB[ i + size ][ j ];
+<span class="line-number">147</span>                 matrixB22[i][j] = matrixB[ i + size ][ j + size ];
+<span class="line-number">148</span>             }
+<span class="line-number">149</span>         }
+<span class="line-number">150</span> 
+<span class="line-number">151</span>         
+<span class="line-number">152</span>         <span class="comment">// Define new temp matrices M</span>
+<span class="line-number">153</span>         <span class="keyword-directive">int</span> **matrixM1;
+<span class="line-number">154</span>         <span class="keyword-directive">int</span> **matrixM2;
+<span class="line-number">155</span>         <span class="keyword-directive">int</span> **matrixM3;
+<span class="line-number">156</span>         <span class="keyword-directive">int</span> **matrixM4;
+<span class="line-number">157</span>         <span class="keyword-directive">int</span> **matrixM5;
+<span class="line-number">158</span>         <span class="keyword-directive">int</span> **matrixM6;
+<span class="line-number">159</span>         <span class="keyword-directive">int</span> **matrixM7;
+<span class="line-number">160</span>         
+<span class="line-number">161</span>         matrixM1 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">162</span>         matrixM2 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">163</span>         matrixM3 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">164</span>         matrixM4 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">165</span>         matrixM5 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">166</span>         matrixM6 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">167</span>         matrixM7 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">168</span> 
+<span class="line-number">169</span>         <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">170</span>             matrixM1[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">171</span>             matrixM2[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">172</span>             matrixM3[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">173</span>             matrixM4[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">174</span>             matrixM5[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">175</span>             matrixM6[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">176</span>             matrixM7[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">177</span>         }
+<span class="line-number">178</span> 
+<span class="line-number">179</span>         
+<span class="line-number">180</span>         <span class="comment">// Set M matrices      </span>
+<span class="line-number">181</span>         matrixM1 = strassenMultiply( matrixAddSub(matrixA11, matrixA22,size,add) , matrixAddSub(matrixB11, matrixB22,size,add), size);
+<span class="line-number">182</span>         matrixM2 = strassenMultiply( matrixAddSub(matrixA21, matrixA22,size,add) , matrixB11, size);
+<span class="line-number">183</span>         matrixM3 = strassenMultiply( matrixAddSub(matrixB12, matrixB22,size,sub) , matrixA11, size);
+<span class="line-number">184</span>         matrixM4 = strassenMultiply( matrixAddSub(matrixB21, matrixB11,size,sub) , matrixA22, size);
+<span class="line-number">185</span>         matrixM5 = strassenMultiply( matrixAddSub(matrixA11, matrixA12,size,add) , matrixB22, size);
+<span class="line-number">186</span>         matrixM6 = strassenMultiply( matrixAddSub(matrixA21, matrixA11,size,sub) , matrixAddSub(matrixB11, matrixB12,size,add), size);
+<span class="line-number">187</span>         matrixM7 = strassenMultiply( matrixAddSub(matrixA12, matrixA22,size,sub) , matrixAddSub(matrixB21, matrixB22,size,add), size);
+<span class="line-number">188</span> 
+<span class="line-number">189</span>         
+<span class="line-number">190</span>         <span class="comment">// Define new temp matrices C</span>
+<span class="line-number">191</span>         <span class="keyword-directive">int</span> **matrixC11;
+<span class="line-number">192</span>         <span class="keyword-directive">int</span> **matrixC12;
+<span class="line-number">193</span>         <span class="keyword-directive">int</span> **matrixC21;
+<span class="line-number">194</span>         <span class="keyword-directive">int</span> **matrixC22;
+<span class="line-number">195</span> 
+<span class="line-number">196</span>         matrixC11 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">197</span>         matrixC12 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">198</span>         matrixC21 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">199</span>         matrixC22 = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">200</span> 
+<span class="line-number">201</span>         <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">202</span>             matrixC11[i] = (<span class="keyword-directive">in</span><span class="keyword-directive">t</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">203</span>             matrixC12[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">204</span>             matrixC21[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">205</span>             matrixC22[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size);
+<span class="line-number">206</span>         }
+<span class="line-number">207</span> 
+<span class="line-number">208</span>         <span class="comment">// Store results into matrix C</span>
+<span class="line-number">209</span>         matrixC11 = matrixAddSub ( matrixAddSub( matrixM1,matrixM4,size,add ),  matrixAddSub( matrixM5,matrixM7,size,add ), size,sub);
+<span class="line-number">210</span>         matrixC12 = matrixAddSub( matrixM3,matrixM5,size,add );
+<span class="line-number">211</span>         matrixC21 = matrixAddSub( matrixM2,matrixM4,size,add );
+<span class="line-number">212</span>         matrixC22 = matrixAddSub ( matrixAddSub( matrixM1,matrixM2,size,sub ),  matrixAddSub( matrixM3,matrixM6,size,add ), size,add);
+<span class="line-number">213</span> 
+<span class="line-number">214</span>         
+<span class="line-number">215</span>         <span class="comment">//Recontitute matrixC from smaller matrixC quandrants</span>
+<span class="line-number">216</span>         <span class="comment">//size is used as an offset here</span>
+<span class="line-number">217</span>         <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">218</span>             <span class="keyword-directive">for</span> (j = 0; j &lt; size; j++) {
+<span class="line-number">219</span>                 matrixC[ i ][ j ] = matrixC11[ i ][ j ];
+<span class="line-number">220</span>                 matrixC[ i ][ j+size ] = matrixC12[ i ][ j ];
+<span class="line-number">221</span>                 matrixC[ i+size ][ j ] = matrixC21[ i ][ j ];
+<span class="line-number">222</span>                 matrixC[ i+size ][ j+size ] = matrixC22[ i ][ j ];
+<span class="line-number">223</span>             }
+<span class="line-number">224</span>         }
+<span class="line-number">225</span> 
+<span class="line-number">226</span> 
+<span class="line-number">227</span>     <span class="comment">//end of else</span>
+<span class="line-number">228</span>     }
+<span class="line-number">229</span> 
+<span class="line-number">230</span>     <span class="keyword-directive">return</span> matrixC;
+<span class="line-number">231</span> }
+<span class="line-number">232</span> 
+<span class="line-number">233</span> <span class="keyword-directive">int</span>** matrixAddSub(<span class="keyword-directive">int</span> **matrixA, <span class="keyword-directive">int</span> **matrixB, <span class="keyword-directive">int</span> size, bool Add) {
+<span class="line-number">234</span>     <span class="keyword-directive">int</span> **matrixC; <span class="comment">// Result matrix</span>
+<span class="line-number">235</span>     <span class="keyword-directive">int</span> i, j; <span class="comment">// Matrix indices</span>
+<span class="line-number">236</span> 
+<span class="line-number">237</span>     <span class="comment">// Dynamically allocate space for a two dimensional arr</span><span class="comment">ay of ints with error checking</span>
+<span class="line-number">238</span>     matrixC = (<span class="keyword-directive">int</span> **) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span> *) * size);
+<span class="line-number">239</span> 
+<span class="line-number">240</span>     <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">241</span>         <span class="keyword-directive">if</span> (matrixC == NULL || (matrixC[i] = (<span class="keyword-directive">int</span> *) malloc(<span class="keyword-directive">sizeof</span> (<span class="keyword-directive">int</span>) * size)) == NULL) {
+<span class="line-number">242</span>             printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="preprocessor-system-include-literal">Memory allocation for matrix failed. Aborting..</span><span class="preprocessor-system-include-literal">&quot;</span>);
+<span class="line-number">243</span>             <span class="keyword-directive">return</span>;
+<span class="line-number">244</span>         }
+<span class="line-number">245</span>     }
+<span class="line-number">246</span> 
+<span class="line-number">247</span>     <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">248</span>         <span class="keyword-directive">for</span> (j = 0; j &lt; size; j++) {
+<span class="line-number">249</span>             <span class="keyword-directive">if</span> (Add) {
+<span class="line-number">250</span>                 matrixC[i][j] = matrixA[i][j] + matrixB[i][j];
+<span class="line-number">251</span>             } <span class="keyword-directive">else</span> {
+<span class="line-number">252</span>                 matrixC[i][j] = matrixA[i][j] - matrixB[i][j];
+<span class="line-number">253</span>             }
+<span class="line-number">254</span>         }
+<span class="line-number">255</span>     }
+<span class="line-number">256</span> 
+<span class="line-number">257</span>     <span class="keyword-directive">return</span> matrixC;
+<span class="line-number">258</span> }
+<span class="line-number">259</span> 
+<span class="line-number">260</span> 
+<span class="line-number">261</span> <span class="keyword-directive">void</span> printMatrix(<span class="keyword-directive">int</span> *matrix[], <span class="keyword-directive">int</span> size) {
+<span class="line-number">262</span>     <span class="keyword-directive">int</span> i, j;
+<span class="line-number">263</span> 
+<span class="line-number">264</span>     <span class="comment">//Outer Row Loop</span>
+<span class="line-number">265</span>     <span class="keyword-directive">for</span> (i = 0; i &lt; size; i++) {
+<span class="line-number">266</span>         <span class="comment">//Inner Column Loop</span>
+<span class="line-number">267</span>         <span class="keyword-directive">for</span> (j = 0; j &lt; size; j++) {
+<span class="line-number">268</span>             <span class="keyword-directive">if</span> (matrix[i][j] &gt; 0) {
+<span class="line-number">269</span>                 printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="preprocessor-system-include-literal"> %d </span><span class="preprocessor-system-include-literal">&quot;</span>, matrix[i][j]);
+<span class="line-number">270</span>             } <span class="keyword-directive">else</span> {
+<span class="line-number">271</span>                 printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="preprocessor-system-include-literal">%</span><span class="preprocessor-system-include-literal">d </span><span class="preprocessor-system-include-literal">&quot;</span>, matrix[i][j]);
+<span class="line-number">272</span>             }
+<span class="line-number">273</span>         }
+<span class="line-number">274</span>         <span class="comment">//Row carriage return</span>
+<span class="line-number">275</span>         printf(<span class="preprocessor-system-include-literal">&quot;</span><span class="ST0">\n</span><span class="preprocessor-system-include-literal">&quot;</span>);
+<span class="line-number">276</span>     }
+<span class="line-number">277</span> }
+<span class="line-number">278</span> 
+<span class="line-number">279</span> 
+<span class="line-number">280</span> 
+<span class="line-number">281</span> 
+</pre></body>
+</html>
